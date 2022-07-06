@@ -1,0 +1,9 @@
+2022-07-06 22:07:00.749  INFO 26456 --- [main] com.nowcoder.community.LoggerTests       : Starting LoggerTests using Java 1.8.0_211 on LAPTOP-QBE91PAB with PID 26456 (started by leihao in D:\IdeaProjects\community)
+2022-07-06 22:07:00.750 DEBUG 26456 --- [main] com.nowcoder.community.LoggerTests       : Running with Spring Boot v2.7.1, Spring v5.3.21
+2022-07-06 22:07:00.751  INFO 26456 --- [main] com.nowcoder.community.LoggerTests       : No active profile set, falling back to 1 default profile: "default"
+2022-07-06 22:07:01.950  INFO 26456 --- [main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page template: index
+2022-07-06 22:07:02.301  INFO 26456 --- [main] com.nowcoder.community.LoggerTests       : Started LoggerTests in 1.742 seconds (JVM running for 2.354)
+2022-07-06 22:07:02.474 DEBUG 26456 --- [main] com.nowcoder.community.LoggerTests       : debug logger
+2022-07-06 22:07:02.474  INFO 26456 --- [main] com.nowcoder.community.LoggerTests       : info logger
+2022-07-06 22:07:02.474  WARN 26456 --- [main] com.nowcoder.community.LoggerTests       : warn logger
+2022-07-06 22:07:02.475 ERROR 26456 --- [main] com.nowcoder.community.LoggerTests       : error logger
