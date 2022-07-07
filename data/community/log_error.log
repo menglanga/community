@@ -1,2 +1,4 @@
-2022-07-06 22:38:10,356 ERROR [main] c.n.c.LoggerTests [LoggerTests.java:24] error logger
-2022-07-06 22:43:01,507 ERROR [main] c.n.c.LoggerTests [LoggerTests.java:24] error logger
+2022-07-07 21:18:52,404 ERROR [main] c.n.c.u.MailClient [MailClient.java:42] 发送邮件失败Missing domain
+2022-07-07 21:23:28,720 ERROR [main] c.n.c.u.MailClient [MailClient.java:42] 发送邮件失败Missing domain
+2022-07-07 21:24:35,003 ERROR [main] c.n.c.u.MailClient [MailClient.java:42] 发送邮件失败Missing domain
+2022-07-07 21:26:04,085 ERROR [main] c.n.c.u.MailClient [MailClient.java:42] 发送邮件失败javax.mail.internet.AddressException: Missing domain in string ``245654808@''
