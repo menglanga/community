@@ -26,6 +26,12 @@ public class HomeController {
     @Autowired
     private UserService userService;
 
+    /**
+     * 分页查询。显示首页帖子信息
+     * @param model
+     * @param page
+     * @return
+     */
     @RequestMapping(value = "/index",method = RequestMethod.GET)
     public String getIndexPage(Model model, Page page){
         //方法调用前，springMVC自动实例化,MODEL 和page 并将page注入model

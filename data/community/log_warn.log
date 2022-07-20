@@ -1,2 +1,9 @@
-2022-07-06 22:38:10,355 WARN [main] c.n.c.LoggerTests [LoggerTests.java:23] warn logger
-2022-07-06 22:43:01,507 WARN [main] c.n.c.LoggerTests [LoggerTests.java:23] warn logger
+2022-07-20 20:12:05,943 WARN [main] c.z.h.HikariConfig [HikariConfig.java:1092] HikariPool-1 - idleTimeout has been set but has no effect because the pool is operating as a fixed size pool.
+2022-07-20 20:18:55,746 WARN [main] c.z.h.HikariConfig [HikariConfig.java:1092] HikariPool-1 - idleTimeout has been set but has no effect because the pool is operating as a fixed size pool.
+2022-07-20 21:32:35,778 WARN [http-nio-8080-exec-1] c.z.h.HikariConfig [HikariConfig.java:1092] HikariPool-1 - idleTimeout has been set but has no effect because the pool is operating as a fixed size pool.
+2022-07-20 21:34:56,427 WARN [http-nio-8080-exec-1] c.z.h.HikariConfig [HikariConfig.java:1092] HikariPool-1 - idleTimeout has been set but has no effect because the pool is operating as a fixed size pool.
+2022-07-20 22:17:37,757 WARN [http-nio-8080-exec-1] c.z.h.HikariConfig [HikariConfig.java:1092] HikariPool-1 - idleTimeout has been set but has no effect because the pool is operating as a fixed size pool.
+2022-07-20 22:19:12,407 WARN [http-nio-8080-exec-1] c.z.h.HikariConfig [HikariConfig.java:1092] HikariPool-1 - idleTimeout has been set but has no effect because the pool is operating as a fixed size pool.
+2022-07-20 22:20:12,346 WARN [http-nio-8080-exec-2] c.z.h.HikariConfig [HikariConfig.java:1092] HikariPool-1 - idleTimeout has been set but has no effect because the pool is operating as a fixed size pool.
+2022-07-20 22:23:19,874 WARN [http-nio-8080-exec-2] c.z.h.HikariConfig [HikariConfig.java:1092] HikariPool-1 - idleTimeout has been set but has no effect because the pool is operating as a fixed size pool.
+2022-07-20 22:29:59,670 WARN [http-nio-8080-exec-7] o.s.w.s.m.s.DefaultHandlerExceptionResolver [AbstractHandlerExceptionResolver.java:208] Resolved [org.springframework.web.method.annotation.MethodArgumentTypeMismatchException: Failed to convert value of type 'java.lang.String' to required type 'int'; nested exception is java.lang.NumberFormatException: For input string: "profile.html"]
