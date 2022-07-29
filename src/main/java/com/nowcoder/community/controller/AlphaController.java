@@ -36,7 +36,10 @@ public class AlphaController {
     @RequestMapping("/hello")
     @ResponseBody
     public String sayHello(){
-        return "Hello Springboot!!!";
+        Map<String,String> map=new HashMap<>();
+        map.put("11","sf");
+        return map.toString();
+        //return "Hello Springboot!!!";
     }
 
 
