@@ -4,11 +4,15 @@ import com.google.code.kaptcha.Producer;
 import com.nowcoder.community.entity.User;
 import com.nowcoder.community.service.UserService;
 import com.nowcoder.community.util.CommunityConstant;
+import com.nowcoder.community.util.CommunityUtil;
+import com.nowcoder.community.util.RedisKeyUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -23,6 +27,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Controller
 public class LoginController implements CommunityConstant {
@@ -38,8 +43,12 @@ public class LoginController implements CommunityConstant {
     private String contextPath;
 
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
+
     /**
-     * 访问注册页面
+     * 跳转注册页面
      *
      * @return
      */
@@ -49,7 +58,7 @@ public class LoginController implements CommunityConstant {
     }
 
     /**
-     * 访问登录页面
+     * 跳转登录页面
      *
      * @return
      */
@@ -89,6 +98,7 @@ public class LoginController implements CommunityConstant {
      * @return
      */
     //http://localhost:8080/community/activation/${id}/${activationCode}
+    // 这是激活邮箱的地址，直接转到controller处理
     @GetMapping("/activation/{id}/{code}")
     public String activation(Model model,
                              @PathVariable("id") int id,
@@ -108,14 +118,29 @@ public class LoginController implements CommunityConstant {
     }
 
 
-    //生成验证码
+    //生成验证码图片，在登录页面
     @GetMapping("/kaptcha")
-    public void getKaptcha(HttpServletResponse response, HttpSession session) {
+    public void getKaptcha(HttpServletResponse response/*, HttpSession session*/) {
+        //生成验证码
         String text = kaptchaProducer.createText();
         BufferedImage image = kaptchaProducer.createImage(text);
 
         //验证码存入session
-        session.setAttribute("kaptcha", text);
+        //session.setAttribute("kaptcha", text);
+
+
+        //验证码的归属，就是客户端客户端
+        String kaptchaOwner= CommunityUtil.generateUUID();
+        Cookie cookie = new Cookie("kaptchaOwner", kaptchaOwner);
+        cookie.setMaxAge(60);
+        cookie.setPath(contextPath);
+        response.addCookie(cookie);
+
+        //将验证码存入redis
+        String redisKey= RedisKeyUtil.getKaptchaKey(kaptchaOwner);
+        redisTemplate.opsForValue().set(redisKey,text,60, TimeUnit.SECONDS);
+
+
 
         //将图片输出给浏览器
         response.setContentType("image/png");
@@ -130,9 +155,15 @@ public class LoginController implements CommunityConstant {
 
     @PostMapping("/login")
     public String login(String username, String password, String code,
-                        boolean rememberme, Model model, HttpSession session, HttpServletResponse response){
+                        boolean rememberme, Model model,/* HttpSession session,*/ HttpServletResponse response,
+                        @CookieValue("kaptchaOwner") String kaptchaOwner){
         //首先判断验证码
-        String kaptcha = (String) session.getAttribute("kaptcha");
+        //String kaptcha = (String) session.getAttribute("kaptcha");
+        String kaptcha=null;
+        if (StringUtils.isNotBlank(kaptchaOwner)){
+            String redisKey=RedisKeyUtil.getKaptchaKey(kaptchaOwner);
+            kaptcha= (String) redisTemplate.opsForValue().get(redisKey);
+        }
         if (StringUtils.isBlank(kaptcha)|| StringUtils.isBlank(code)|| !kaptcha.equalsIgnoreCase(code)){
             model.addAttribute("codeMsg","验证码错误！");
             return "/site/login";
@@ -162,6 +193,7 @@ public class LoginController implements CommunityConstant {
     @GetMapping("/logout")
     public String logout(@CookieValue("ticket") String ticket) {
         userService.logout(ticket);
+        SecurityContextHolder.clearContext();
         return "redirect:/login";
     }
 

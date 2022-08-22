@@ -5,11 +5,11 @@ import java.util.Date;
 public class Comment {
     private int id;
     private int userId;
-    private int entityType;
-    private int entityId;
-    private int targetId;
+    private int entityType;//1-帖子， 2-评论  3-用户
+    private int entityId; //如果类型是1-帖子， 那就是帖子ID，
+    private int targetId;//记录评论的人，例如某个帖子A评论了,我去回复A，那么A就是target
     private String content;
-    private int status;
+    private int status;//0-正常， 1-禁用
     private Date createTime;
 
     public int getId() {

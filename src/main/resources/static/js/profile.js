@@ -24,7 +24,7 @@ function follow() {
 		//$(btn).text("关注TA").removeClass("btn-secondary").addClass("btn-info");
 
 
-			// 关注TA
+			// 取关TA
 			$.post(
 				"/community/unfollow",
 				{"entityType":3,"entityId":$(btn).prev().val()},

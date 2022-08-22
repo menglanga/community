@@ -1,7 +1,9 @@
 package com.nowcoder.community.controller;
 
+import com.nowcoder.community.entity.Event;
 import com.nowcoder.community.entity.Page;
 import com.nowcoder.community.entity.User;
+import com.nowcoder.community.event.EventProducer;
 import com.nowcoder.community.service.FollowService;
 import com.nowcoder.community.service.UserService;
 import com.nowcoder.community.util.CommunityConstant;
@@ -20,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-public class FollowController {
+public class FollowController implements CommunityConstant{
 
     @Autowired
     private FollowService followService;
@@ -31,6 +33,9 @@ public class FollowController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private EventProducer eventProducer;
+
     @PostMapping("/follow")
     @ResponseBody
     public String follow(int entityType, int entityId){
@@ -39,6 +44,15 @@ public class FollowController {
             throw  new RuntimeException("你还没登录！");
         }
         followService.follow(user.getId(),entityType,entityId);
+
+        //触发关注事件
+        Event event=new Event()
+                .setTopic(TOPIC_FOLLOW)
+                .setUserId(holder.getUser().getId())
+                .setEntityId(entityId)
+                .setEntityType(entityType)
+                .setEntityUserId(entityId);
+        eventProducer.fireEvent(event);
 
         return CommunityUtil.getJSONString(0,"已关注");
 
@@ -57,7 +71,7 @@ public class FollowController {
 
     }
 
-
+    //查询某个用户关注多少个实体 多少个entityId
     @GetMapping("/followees/{userId}")
     public String getFollowees(@PathVariable("userId") int userId, Page page, Model model){
         User user = userService.findUserById(userId);
@@ -88,7 +102,7 @@ public class FollowController {
     }
 
 
-
+    //查询某个实体(用户)有多少个粉丝用户
     @GetMapping("/followers/{userId}")
     public String getFollowers(@PathVariable("userId") int userId, Page page, Model model){
         User user = userService.findUserById(userId);

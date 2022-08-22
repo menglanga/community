@@ -12,6 +12,8 @@
         user_id, title, content, type, status, create_time, comment_count,score
     </sql>
 
+  <!-- private int type; // '0-普通; 1-置顶;'
+    private int status; //'0-正常; 1-精华; 2-拉黑;',-->
     <select id="selectDiscussPosts" resultType="DiscussPost">
         select
         <include refid="selectFields"></include>
@@ -48,5 +50,13 @@
 
     <update id="updateCommentCount">
         update discuss_post set comment_count=#{commentCount} where id=#{id}
+    </update>
+
+    <update id="updateType">
+        update discuss_post set type=#{type} where id=#{id}
+    </update>
+
+    <update id="updateStatus">
+        update discuss_post set status=#{status} where id=#{id}
     </update>
 </mapper>

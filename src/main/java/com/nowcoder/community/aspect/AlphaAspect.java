@@ -42,6 +42,7 @@ public class AlphaAspect {
         System.out.println("around before");
         Object o = joinPoint.proceed();
         System.out.println("around after");
+        System.out.println(o.toString());
         return o;
     }
 

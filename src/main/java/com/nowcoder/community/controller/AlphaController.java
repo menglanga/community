@@ -1,6 +1,7 @@
 package com.nowcoder.community.controller;
 
 
+import com.alibaba.fastjson.JSONObject;
 import com.nowcoder.community.service.AlphaService;
 import com.nowcoder.community.util.CommunityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,8 +9,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-
-import javax.annotation.PostConstruct;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,7 +29,7 @@ public class AlphaController {
     @RequestMapping("/data")
     @ResponseBody
     public  String  getData(){
-        return  alphaService.find();
+        return  alphaService.find();//Mybatis
     }
 
     @RequestMapping("/hello")
@@ -38,7 +37,10 @@ public class AlphaController {
     public String sayHello(){
         Map<String,String> map=new HashMap<>();
         map.put("11","sf");
-        return map.toString();
+        //返回json字符串 {"11":"sf"}
+        return  JSONObject.toJSONString(map);
+        //返回map 格式字符串
+       // return map.toString();
         //return "Hello Springboot!!!";
     }
 
@@ -46,22 +48,37 @@ public class AlphaController {
     @RequestMapping("/http")
     public void http(HttpServletRequest request, HttpServletResponse response){
         //获取请求数据
-        System.out.println(request.getMethod());
-        System.out.println(request.getServletPath());
+        System.out.println(request.getMethod());// GET
+        System.out.println(request.getServletPath());//  /alpha/http
         Enumeration<String> headerNames = request.getHeaderNames();
+        //host:localhost:8080
+        //connection:keep-alive
+        //sec-ch-ua:"Chromium";v="104", " Not A;Brand";v="99", "Google Chrome";v="104"
+        //sec-ch-ua-mobile:?0
+        //sec-ch-ua-platform:"Windows"
+        //upgrade-insecure-requests:1
+        //user-agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36
+        //accept:text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+        //sec-fetch-site:none
+        //sec-fetch-mode:navigate
+        //sec-fetch-user:?1
+        //sec-fetch-dest:document
+        //accept-encoding:gzip, deflate, br
+        //accept-language:zh-CN,zh;q=0.9
+        //cookie:ticket=a5ad5a5fd6734e9e8613167690120f87; Idea-16d821b6=9ed5c7a2-0fd6-417f-8e92-225c9bec8575; Pycharm-7ce1921b=26e096e1-7b35-44ab-882b-0f774069968f; jenkins-timestamper-offset=-28800000
         while(headerNames.hasMoreElements()){
             String name = headerNames.nextElement();
             String value = request.getHeader(name);
             System.out.println(name+":"+value);
 
         }
-
-        System.out.println(request.getParameter("code"));
+        //get传入参数 http://localhost:8080/community/alpha/http?code=134
+        System.out.println(request.getParameter("code"));//134
 
         //返回响应数据
 
         response.setContentType("text/html;charset=utf-8");
-        try(PrintWriter writer = response.getWriter();) {
+        try(PrintWriter writer = response.getWriter()) {
             writer.write("<h1>Niuko<h1>");
         } catch (IOException e) {
             e.printStackTrace();
@@ -70,8 +87,8 @@ public class AlphaController {
 
 
     //GET请求
-    // /students?current=1?limit=20?
-
+    // /students?current=1&limit=20
+    //http://localhost:8080/community/alpha/students?current=1&limit=20
     @RequestMapping(path = "/students", method = RequestMethod.GET)
     @ResponseBody
     public String getStudents(@RequestParam(name = "current",required = false,defaultValue = "1") int current,
@@ -82,7 +99,7 @@ public class AlphaController {
     }
 
     //  /student/12
-
+    //http://localhost:8080/community/alpha/student/12
     @RequestMapping(value = "/student/{id}",method = RequestMethod.GET)
     @ResponseBody
     public  String  getStudent(@PathVariable("id") int id){
@@ -164,7 +181,7 @@ public class AlphaController {
         Cookie cookie = new Cookie("code", CommunityUtil.generateUUID());
         //设置cookie生效的范围
         cookie.setPath("/community/alpha");
-        //设置cookie存放时间
+        //设置cookie存放时间 单位秒
         cookie.setMaxAge(60*10);
         response.addCookie(cookie);
         return "cookie 已经生成了,在我的响应头里哦！";

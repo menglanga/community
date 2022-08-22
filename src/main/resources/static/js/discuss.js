@@ -1,7 +1,15 @@
-function like(btn, entityType, entityId, entityUserId) {
+$(function(){
+  $("#topBtn").click(setTop);
+  $("#wonderfulBtn").click(setWonderful);
+  $("#deleteBtn").click(setDelete);
+});
+
+
+
+function like(btn, entityType, entityId, entityUserId,postId) {
     $.post(
         "/community/like",
-        {"entityType": entityType, "entityId": entityId, "entityUserId": entityUserId},
+        {"entityType": entityType, "entityId": entityId, "entityUserId": entityUserId,"postId":postId},
         function (data) {
             data = $.parseJSON(data);
             if (data.code == 0) {
@@ -14,3 +22,55 @@ function like(btn, entityType, entityId, entityUserId) {
     );
 
 }
+
+//置顶
+function setTop() {
+    $.post(
+        "/community/discuss/top",
+        {"id":$("#postId").val()},
+        function (data) {
+            data=$.parseJSON(data);
+            if(data.code==0){
+                $("#topBtn").attr("disabled","disabled");
+            }else{
+                alert(data.msg);
+            }
+        }
+    );
+
+}
+
+//加精
+function setWonderful() {
+    $.post(
+        "/community/discuss/wonderful",
+        {"id":$("#postId").val()},
+        function (data) {
+            data=$.parseJSON(data);
+            if(data.code==0){
+                $("#wonderfulBtn").attr("disabled","disabled");
+            }else{
+                alert(data.msg);
+            }
+        }
+    );
+
+}
+
+//拉黑
+function setDelete() {
+    $.post(
+        "/community/discuss/delete",
+        {"id":$("#postId").val()},
+        function (data) {
+            data=$.parseJSON(data);
+            if(data.code==0){
+                location.href="/community/index";
+            }else{
+                alert(data.msg);
+            }
+        }
+    );
+
+}
+

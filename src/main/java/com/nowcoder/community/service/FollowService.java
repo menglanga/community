@@ -20,7 +20,7 @@ public class FollowService implements CommunityConstant {
 
     @Autowired
     private UserService userService;
-
+    //某个用户关注某个实体
     public void follow(int userId, int entityType, int entityId) {
         redisTemplate.execute(new SessionCallback() {
             @Override
@@ -29,9 +29,9 @@ public class FollowService implements CommunityConstant {
                 String followerKey = RedisKeyUtil.getFollowerKey(entityType, entityId);
 
                 operations.multi();
-
+                //存实体Id
                 operations.opsForZSet().add(followeeKey, entityId, System.currentTimeMillis());
-
+                //存用户ID
                 operations.opsForZSet().add(followerKey, userId, System.currentTimeMillis());
 
                 return operations.exec();
@@ -39,7 +39,7 @@ public class FollowService implements CommunityConstant {
         });
     }
 
-
+    //取关
     public void unfollow(int userId, int entityType, int entityId) {
         redisTemplate.execute(new SessionCallback() {
             @Override
@@ -59,13 +59,27 @@ public class FollowService implements CommunityConstant {
         });
     }
 
-    //查询关注某个实体的数量
+    //查询某个用户关注多少个实体 多少个entityId
+
+    /**
+     *
+     * @param userId
+     * @param entityType
+     * @return
+     */
     public long findFolloweeCount(int userId, int entityType) {
         String followeeKey = RedisKeyUtil.getFolloweeKey(userId, entityType);
         return redisTemplate.opsForZSet().zCard(followeeKey);
     }
 
-    //查询实体的粉丝数量
+    //查询某个实体有多少个粉丝用户
+
+    /**
+     *
+     * @param entityType
+     * @param entityId
+     * @return
+     */
     public long findFollowerCount(int entityType, int entityId) {
         String followerKey = RedisKeyUtil.getFollowerKey(entityType, entityId);
         return redisTemplate.opsForZSet().zCard(followerKey);
@@ -73,13 +87,21 @@ public class FollowService implements CommunityConstant {
 
 
     //查询当前用户是否已关注某个实体
+
+    /**
+     *
+     * @param userId
+     * @param entityType
+     * @param entityId
+     * @return
+     */
     public boolean hasFollowed(int userId, int entityType, int entityId) {
         String followeeKey = RedisKeyUtil.getFolloweeKey(userId, entityType);
         return redisTemplate.opsForZSet().score(followeeKey, entityId) != null;
     }
 
 
-    //查询某个用户关注的人
+    //查询某个用户关注了哪些人
     public List<Map<String,Object>> findFollowees(int userId, int offset, int limit){
         String followeeKey = RedisKeyUtil.getFolloweeKey(userId, ENTITY_TYPE_USER);
 
@@ -105,7 +127,7 @@ public class FollowService implements CommunityConstant {
 
 
 
-    //查询某个用户的粉丝
+    //查询某个用户有哪些粉丝
     public List<Map<String,Object>> findFollowers(int userId, int offset, int limit){
         String followerKey = RedisKeyUtil.getFollowerKey(ENTITY_TYPE_USER,userId);
 

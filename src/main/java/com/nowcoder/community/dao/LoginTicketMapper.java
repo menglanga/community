@@ -5,6 +5,8 @@ import org.apache.ibatis.annotations.*;
 
 
 @Mapper
+//不推荐使用，改用缓存
+@Deprecated
 public interface LoginTicketMapper {
 
     @Insert({

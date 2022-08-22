@@ -68,7 +68,12 @@ public class UserController implements CommunityConstant {
         return "/site/setting";
     }
 
-
+    /**
+     * 上传头像
+     * @param image
+     * @param model
+     * @return
+     */
     @LoginRequired
     @PostMapping("/upload")
     public String uploadHeader(MultipartFile image, Model model) {
@@ -79,7 +84,7 @@ public class UserController implements CommunityConstant {
 
         String fileName = image.getOriginalFilename();
         //截取.后缀名
-        String suffix = fileName.substring(fileName.lastIndexOf("."));
+        String suffix = fileName.substring(fileName.lastIndexOf("."));//.png
         if (suffix == null) {
             model.addAttribute("error", "文件格式不正确");
             return "site/setting";
@@ -103,11 +108,19 @@ public class UserController implements CommunityConstant {
 
     }
 
+
+    /**
+     *
+     * @param fileName  xxx(uuid).png
+     * @param response
+     */
     @GetMapping("/header/{fileName}")
     public void getHeader(@PathVariable("fileName") String fileName, HttpServletResponse response) {
 
+        //D:\\IdeaProjects\\community\\image\\xxx(uuid).png 服务器存放路径
         fileName = uploadPath + "/" + fileName;
-        String suffix = fileName.substring(fileName.lastIndexOf(".") + 1);
+        String suffix = fileName.substring(fileName.lastIndexOf(".") + 1);//png
+        //响应图片
         response.setContentType("image/" + suffix);
         try (OutputStream out = response.getOutputStream();
              FileInputStream fis = new FileInputStream(fileName)
@@ -146,23 +159,29 @@ public class UserController implements CommunityConstant {
 
     }
 
+    /**
+     *
+     * @param userId 目标人的userID
+     * @param model
+     * @return
+     */
     //个人主页
     @GetMapping("/profile/{userId}")
     public String getProfilePage(@PathVariable("userId") int userId, Model model) {
-
+        //目标人
         User user = userService.findUserById(userId);
 
         if (user == null) {
             throw new RuntimeException("该用户不存在！");
         }
 
-        //用户
+        //点进去的目标用户
         model.addAttribute("user", user);
-        //点赞数量
+        //获赞数量
         int likeCount = likeService.findUserLikeCount(userId);
         model.addAttribute("likeCount", likeCount);
 
-        //关注的数量
+        //关注的实体（用户）数量
         long followeeCount = followService.findFolloweeCount(userId, ENTITY_TYPE_USER);
         model.addAttribute("followeeCount",followeeCount);
 
@@ -173,7 +192,7 @@ public class UserController implements CommunityConstant {
 
 
 
-        //是否已关注
+        //当前登录用户是否已关注目标人
         boolean hasFollowed=false;
         if (holder.getUser()!=null){
             hasFollowed=followService.hasFollowed(holder.getUser().getId(),ENTITY_TYPE_USER,userId);

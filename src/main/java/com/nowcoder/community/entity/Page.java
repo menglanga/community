@@ -1,7 +1,7 @@
 package com.nowcoder.community.entity;
 
 /**
- * 封装分页
+ * 封装分页组件
  */
 public class Page {
     //当前的页码

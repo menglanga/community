@@ -1,9 +1,7 @@
 package com.nowcoder.community.controller;
 
-import com.nowcoder.community.entity.Comment;
-import com.nowcoder.community.entity.DiscussPost;
-import com.nowcoder.community.entity.Page;
-import com.nowcoder.community.entity.User;
+import com.nowcoder.community.entity.*;
+import com.nowcoder.community.event.EventProducer;
 import com.nowcoder.community.service.CommentService;
 import com.nowcoder.community.service.DiscussPostService;
 import com.nowcoder.community.service.LikeService;
@@ -39,7 +37,15 @@ public class DiscussPostController implements CommunityConstant {
     @Autowired
     private LikeService likeService;
 
+    @Autowired
+    private EventProducer eventProducer;
 
+    /**
+     * 发布帖子 利用ajax
+     * @param title
+     * @param content
+     * @return
+     */
     @PostMapping("/add")
     @ResponseBody
     public String addDiscussPost(String title, String content) {
@@ -54,12 +60,28 @@ public class DiscussPostController implements CommunityConstant {
         discussPost.setCreateTime(new Date());
         discussPostService.addDiscussPost(discussPost);
 
+        //触发发帖事件
+        Event event=new Event()
+                .setTopic(TOPIC_PUBLISH)
+                .setUserId(user.getId())
+                .setEntityType(ENTITY_TYPE_POST)
+                .setEntityId(discussPost.getId());
+
+        eventProducer.fireEvent(event);
+
+
         //报错的情况，将来统一处理
         return CommunityUtil.getJSONString(0, "操作成功");
 
     }
 
-
+    /**
+     * 查看帖子详情
+     * @param discussPostId
+     * @param model
+     * @param page
+     * @return
+     */
     @GetMapping("/details/{discussPostId}")
     public String getDiscussPos(@PathVariable("discussPostId") int discussPostId, Model model
             , Page page) {
@@ -75,7 +97,7 @@ public class DiscussPostController implements CommunityConstant {
 
         //点赞
         long likeCount = likeService.findEntityLikeCount(CommunityConstant.ENTITY_TYPE_POST, discussPostId);
-        model.addAttribute("likeCount", likeCount);
+        //model.addAttribute("likeCount", likeCount);
 
         int likeStatus = holder.getUser() == null ? 0 :
                 likeService.findEntityLikeStatus(holder.getUser().getId(), ENTITY_TYPE_POST, discussPostId);
@@ -105,9 +127,9 @@ public class DiscussPostController implements CommunityConstant {
             for (Comment comment : commentList) {
                 //每条评论VO
                 Map<String, Object> commentVo = new HashMap<>();
-                //存每一条帖子评论
+                //存每一条帖子的评论
                 commentVo.put("comment", comment);
-                //帖子评论的作者用户
+                //帖子的评论的作者用户
                 commentVo.put("user", userService.findUserById(comment.getUserId()));
 
                 //点赞
@@ -128,8 +150,9 @@ public class DiscussPostController implements CommunityConstant {
                     for (Comment reply : replyList) {
                         Map<String, Object> replyVo = new HashMap<>();
                         replyVo.put("reply", reply);
+                        //回复人
                         replyVo.put("user", userService.findUserById(reply.getUserId()));
-                        //回复的目标,也就是被回复的对象
+                        //回复的目标,也就是被回复的对象，被回复人
                         User target = reply.getTargetId() == 0 ? null :
                                 userService.findUserById(reply.getTargetId());
                         replyVo.put("target", target);
@@ -146,7 +169,9 @@ public class DiscussPostController implements CommunityConstant {
                         replyVoList.add(replyVo);
                     }
                 }
+                //帖子的评论VO，一条评论有多条回复
                 commentVo.put("replys", replyVoList);
+                //帖子下每条评论的回复（评论的评论）数
                 int replyCount = commentService.findCommentCountByEntity(ENTITY_TYPE_COMMENT, comment.getId());
                 commentVo.put("replyCount", replyCount);
 
@@ -161,5 +186,57 @@ public class DiscussPostController implements CommunityConstant {
 
 
     }
+    //置顶帖子
+    @PostMapping("/top")
+    @ResponseBody
+    public String setTop(int id){
+        discussPostService.updateType(id,1);
+
+        //触发发帖事件
+        Event event=new Event()
+                .setTopic(TOPIC_PUBLISH)
+                .setUserId(holder.getUser().getId())
+                .setEntityType(ENTITY_TYPE_POST)
+                .setEntityId(id);
+
+        eventProducer.fireEvent(event);
+        return CommunityUtil.getJSONString(0);
+    }
+
+
+    //加精帖子
+    @PostMapping("/wonderful")
+    @ResponseBody
+    public String setWonderful(int id){
+        discussPostService.updateStatus(id,1);
+
+        //触发发帖事件
+        Event event=new Event()
+                .setTopic(TOPIC_PUBLISH)
+                .setUserId(holder.getUser().getId())
+                .setEntityType(ENTITY_TYPE_POST)
+                .setEntityId(id);
+
+        eventProducer.fireEvent(event);
+        return CommunityUtil.getJSONString(0);
+    }
+
+    //拉黑帖子
+    @PostMapping("/delete")
+    @ResponseBody
+    public String setDelete(int id){
+        discussPostService.updateStatus(id,2);
+
+        //触发删帖事件
+        Event event=new Event()
+                .setTopic(TOPIC_DELETE)
+                .setUserId(holder.getUser().getId())
+                .setEntityType(ENTITY_TYPE_POST)
+                .setEntityId(id);
+
+        eventProducer.fireEvent(event);
+        return CommunityUtil.getJSONString(0);
+    }
+
 
 }

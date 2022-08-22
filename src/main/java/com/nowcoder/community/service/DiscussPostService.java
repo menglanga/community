@@ -20,7 +20,7 @@ public class DiscussPostService {
 
     /**
      * 分页查询用户的帖子总数
-     * @param userId
+     * @param userId userId=0，查询全部帖子
      * @param offset
      * @param limit
      * @return
@@ -30,7 +30,7 @@ public class DiscussPostService {
     }
 
     /**
-     * 根据用户ID查询帖子总数
+     * 根据用户ID查询帖子总数  userid=0  全部人发布帖子的数量
      * @param userId
      * @return
      */
@@ -39,7 +39,11 @@ public class DiscussPostService {
     }
 
 
-
+    /**
+     * 发布帖子
+     * @param discussPost
+     * @return
+     */
     public int addDiscussPost(DiscussPost discussPost){
         if (discussPost==null){
             throw  new IllegalArgumentException("参数不为空!");
@@ -57,7 +61,11 @@ public class DiscussPostService {
 
     }
 
-
+    /**
+     * 根据帖子id查询帖子
+     * @param id
+     * @return
+     */
     public DiscussPost findDiscussPostById(int id){
         return discussPostMapper.selectDiscussPostById(id);
     }
@@ -66,6 +74,14 @@ public class DiscussPostService {
 
     public int updateCommentCount(int id,int commentCount){
         return discussPostMapper.updateCommentCount(id, commentCount);
+    }
+
+    public int updateType(int id, int type){
+        return discussPostMapper.updateType(id, type);
+    }
+
+    public int updateStatus(int id,int status){
+        return discussPostMapper.updateStatus(id, status);
     }
 
 }

@@ -6,8 +6,11 @@ import com.nowcoder.community.dao.UserMapper;
 import com.nowcoder.community.entity.DiscussPost;
 import com.nowcoder.community.entity.User;
 import com.nowcoder.community.util.CommunityUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
@@ -22,7 +25,9 @@ import javax.annotation.PreDestroy;
 import java.util.Date;
 
 @Service
+//@Scope("prototype")
 public class AlphaService {
+    private static final Logger logger=LoggerFactory.getLogger(AlphaService.class);
 
     @Autowired
     private AlphaDao alphaDao;
@@ -55,9 +60,9 @@ public class AlphaService {
     }
 
 
-    //required
-    //requires_new
-    //nested
+    //required 方法A调用B,B上加上required注解，如果A没有事务，则创建一个新事务，如果A有事务，加入A事务
+    //requires_new 方法A调用B,B上加上required_new注解，则创建一个新事务，不然A有没有事务,作用在B事务中去
+    //nested  方法A调用B,B上加上nested注解，嵌套在A事务中，但B中的事务有自己的提交和回滚，A事务不存在就和Reuired一样
     @Transactional(isolation = Isolation.READ_COMMITTED,propagation = Propagation.REQUIRED)
     public Object save1(){
         //新增用户
@@ -113,6 +118,18 @@ public class AlphaService {
             }
         });
 
+    }
+
+
+    //该方法在多线程的环境下异步调用
+    @Async
+    public void execute1(){
+        logger.debug("execute1");
+    }
+
+    @Scheduled(initialDelay = 10000,fixedRate = 1000)
+    public void execute2(){
+        logger.debug("execute2");
     }
 
 }

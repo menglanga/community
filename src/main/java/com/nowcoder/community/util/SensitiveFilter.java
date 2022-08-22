@@ -24,7 +24,7 @@ public class SensitiveFilter {
     //初始化根节点
     private TrieNode rootNode = new TrieNode();
 
-    //读取资源文件构造敏感词前缀树
+    //读取资源文件构造敏感词前缀树 初始化前缀树
     @PostConstruct
     public void init() {
         try (InputStream is = getClass().getClassLoader().getResourceAsStream("sensitive-words.txt");
@@ -45,9 +45,10 @@ public class SensitiveFilter {
     private void addKeyword(String keyword) {
         TrieNode tempNode = rootNode;
 
-        for (int i = 0; i < keyword.length(); i++) {
+        for (int i = 0; i < keyword.length(); i++) {//赌博
             char c = keyword.charAt(i);
-            TrieNode subNode = tempNode.getSubNode(c);
+            TrieNode subNode = tempNode.getSubNode(c);//试图去获取子节点
+            //没有子节点
             if (subNode == null) {
                 //初始化子节点
                 subNode = new TrieNode();
@@ -57,6 +58,7 @@ public class SensitiveFilter {
             //指针变为子节点，接着循环依次添加子节点
             tempNode = subNode;
 
+            //设置结束标识
             if(i==keyword.length()-1){
                 tempNode.setKeywordEnd(true);
             }
@@ -74,7 +76,7 @@ public class SensitiveFilter {
             return null;
         }
 
-        //指针1
+        //指针1（敏感词前缀树里的指针）
         TrieNode tempNode = rootNode;
         //指针2
         int begin = 0;
@@ -85,33 +87,35 @@ public class SensitiveFilter {
 
         while (begin< text.length()) {
             if (position<text.length()) {
+                //根据position位置获取字符
                 char c = text.charAt(position);
 
                 //跳过符号比如 ☆开☆票☆，以上文本中情况也是需要过滤的,符号保留
                 if (isSynbol(c)) {
                     //若指针1处于根节点，说明才开始过滤或者已经过滤一轮了
                     if (tempNode == rootNode) {
-                        sb.append(c);
+                        sb.append(c);//符号写入，不过滤出去
                         begin++;
                     }
-                    //
+                    //无论☆符号在开头还是中间，指针3都往下走
                     position++;
-                    continue;
+                    continue;//跳过这轮循环
                 }
                 //检查下一个节点
-                //此时指针1指向根节点，从根节点获取子节点为空说明不是敏感字符
+                //此时指针1指向根节点，从根节点获取子节点为当前节点 , 为空说明不是敏感字符，不是空字符的意思，是不含敏感字
                 tempNode = tempNode.getSubNode(c);
                 if (tempNode == null) {
-                    //将指针2指向的字符保留
+                    //将指针2指向的字符保留，以begin指向的字符不是敏感字，记录保存下来
                     sb.append(text.charAt(begin));
+                    //begin往后移，position与其保持一致
                     position = ++begin;
-                    //指针1归位重新指向根节点，重新一轮过滤
+                    //前缀树指针1归位重新指向根节点，重新一轮过滤
                     tempNode = rootNode;
-
-
+                    //当前节点是敏感词
                 } else if (tempNode.isKeywordEnd()) {
                     //发现一整个敏感词，将begin-position的字符串替换掉
                     sb.append(REPLACEMENT);
+                    //position到下一位置，begin与其保持一致
                     begin = ++position;
                     tempNode = rootNode;
                 }
@@ -122,7 +126,7 @@ public class SensitiveFilter {
 
                 }
 
-            } // position遍历越界仍未匹配到敏感词
+            } // position遍历越界仍未匹配到敏感词，这里表示text文本是敏感词的字串
             else{
                 sb.append(text.charAt(begin));
                 position = ++begin;
